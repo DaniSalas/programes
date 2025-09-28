@@ -1,0 +1,40 @@
+import tkinter as tk
+from tkinter import messagebox
+
+# Funciones que se ejecutan al seleccionar cada opción
+def accion_1():
+    messagebox.showinfo("Acción", "Has ejecutado Acción 1")
+
+def accion_2():
+    messagebox.showinfo("Acción", "Has ejecutado Acción 2")
+
+def salir():
+    ventana.quit()
+
+# Crear ventana principal
+ventana = tk.Tk()
+ventana.title("spm gestio")
+ventana.geometry("400x400")
+
+# Crear barra de menú
+barra_menu = tk.Menu(ventana)
+
+# Menú "Archivo"
+menu_archivo = tk.Menu(barra_menu, tearoff=0)
+menu_archivo.add_command(label="Acción 1", command=accion_1)
+menu_archivo.add_command(label="Acción 2", command=accion_2)
+menu_archivo.add_separator()
+menu_archivo.add_command(label="Salir", command=salir)
+barra_menu.add_cascade(label="Archivo", menu=menu_archivo)
+
+# Menú "Herramientas"
+menu_herramientas = tk.Menu(barra_menu, tearoff=0)
+menu_herramientas.add_command(label="Opción A", command=lambda: print("Opción A"))
+menu_herramientas.add_command(label="Opción B", command=lambda: print("Opción B"))
+barra_menu.add_cascade(label="Herramientas", menu=menu_herramientas)
+
+# Asignar barra de menú a la ventana
+ventana.config(menu=barra_menu)
+
+# Ejecutar la aplicación
+ventana.mainloop()
