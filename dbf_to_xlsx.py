@@ -1,16 +1,3 @@
-# Comprobación de xlwt
-try:
-    import xlwt
-except ImportError:
-    import sys
-    try:
-        root = tk.Tk()
-        root.withdraw()
-        tk.messagebox.showerror('Falta xlwt', 'El paquete xlwt no está instalado. Instálalo con "pip install xlwt".')
-        root.destroy()
-    except Exception:
-        print('Falta xlwt. El paquete xlwt no está instalado. Instálalo con "pip install xlwt".')
-    sys.exit(1)
 
 
 import os
@@ -24,10 +11,10 @@ import pandas as pd
 def convert_dbf_to_xls(dbf_path):
     table = DBF(dbf_path, load=True)
     df = pd.DataFrame(iter(table))
-    xls_path = os.path.splitext(dbf_path)[0] + '.xls'
-    # Guardar como .xls usando xlwt
-    df.to_excel(xls_path, index=False, engine='xlwt')
-    return xls_path
+    xlsx_path = os.path.splitext(dbf_path)[0] + '.xlsx'
+    # Guardar como .xlsx usando openpyxl
+    df.to_excel(xlsx_path, index=False, engine='openpyxl')
+    return xlsx_path
 
 def drop(event):
     files = root.tk.splitlist(event.data)
