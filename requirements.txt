@@ -1,0 +1,5 @@
+pandas
+dbfread
+openpyxl
+# opcional para mejor drag&drop en Windows
+tkinterdnd2
