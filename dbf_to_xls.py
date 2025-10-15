@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+# Comprobación de xlwt
+try:
+    import xlwt
+except ImportError:
+    import sys
+    try:
+        root = tk.Tk()
+        root.withdraw()
+        tk.messagebox.showerror('Falta xlwt', 'El paquete xlwt no está instalado. Instálalo con "pip install xlwt".')
+        root.destroy()
+    except Exception:
+        print('Falta xlwt. El paquete xlwt no está instalado. Instálalo con "pip install xlwt".')
+    sys.exit(1)
+
+
+>>>>>>> 97a5b398124aad9d07155f32445b314e04441c2b
 import os
 import tkinter as tk
 from tkinter import filedialog
@@ -29,6 +47,7 @@ def convert_dbf_to_xls(dbf_path):
     dbf_path = dbf_path.strip('{}')
 
     table = DBF(dbf_path, load=True)
+<<<<<<< HEAD
     df = pd.DataFrame(list(table))
     xlsx_path = os.path.splitext(dbf_path)[0] + '.xlsx'
     # Guardar como .xlsx usando openpyxl si está disponible
@@ -38,6 +57,13 @@ def convert_dbf_to_xls(dbf_path):
         # intento genérico (pandas elegirá engine disponible o fallará con mensaje claro)
         df.to_excel(xlsx_path, index=False)
     return xlsx_path
+=======
+    df = pd.DataFrame(iter(table))
+    xls_path = os.path.splitext(dbf_path)[0] + '.xls'
+    # Guardar como .xls usando xlwt
+    df.to_excel(xls_path, index=False, engine='xlwt')
+    return xls_path
+>>>>>>> 97a5b398124aad9d07155f32445b314e04441c2b
 
 
 def handle_files(paths, status_var):
