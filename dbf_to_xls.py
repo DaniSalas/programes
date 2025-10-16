@@ -1,24 +1,6 @@
-<<<<<<< HEAD
-=======
-# Control de error de libreria
-try:
-    import xlwt
-except ImportError:
-    import sys
-    try:
-        root = tk.Tk()
-        root.withdraw()
-        tk.messagebox.showerror('Falta xlwt', 'El paquete xlwt no está instalado. Instálalo con "pip install xlwt".')
-        root.destroy()
-    except Exception:
-        print('Falta xlwt. El paquete xlwt no está instalado. Instálalo con "pip install xlwt".')
-    sys.exit(1)
-
-
->>>>>>> 97a5b398124aad9d07155f32445b314e04441c2b
 import os
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 import traceback
 
 # Imports opcionales/externos
@@ -38,32 +20,44 @@ try:
 except Exception:
     pd = None
 
+# Detectar availability de engines
+try:
+    import xlwt
+    XLWT_AVAILABLE = True
+except Exception:
+    XLWT_AVAILABLE = False
+
+try:
+    import openpyxl
+    OPENPYXL_AVAILABLE = True
+except Exception:
+    OPENPYXL_AVAILABLE = False
+
 
 def convert_dbf_to_xls(dbf_path):
     if DBF is None or pd is None:
-        raise RuntimeError('Faltan dependencias: instale dbfread y pandas (y openpyxl para .xlsx)')
+        raise RuntimeError('Faltan dependencias: instale dbfread y pandas (y xlwt/openpyxl según el formato)')
 
     # Asegurar ruta sin llaves que a veces añade el drag&drop
     dbf_path = dbf_path.strip('{}')
 
     table = DBF(dbf_path, load=True)
-<<<<<<< HEAD
     df = pd.DataFrame(list(table))
-    xlsx_path = os.path.splitext(dbf_path)[0] + '.xlsx'
-    # Guardar como .xlsx usando openpyxl si está disponible
-    try:
-        df.to_excel(xlsx_path, index=False, engine='openpyxl')
-    except Exception:
-        # intento genérico (pandas elegirá engine disponible o fallará con mensaje claro)
-        df.to_excel(xlsx_path, index=False)
-    return xlsx_path
-=======
-    df = pd.DataFrame(iter(table))
-    xls_path = os.path.splitext(dbf_path)[0] + '.xls'
-    # Guardar como .xls usando xlwt
-    df.to_excel(xls_path, index=False, engine='xlwt')
-    return xls_path
->>>>>>> 97a5b398124aad9d07155f32445b314e04441c2b
+
+    # Preferir .xls si xlwt está disponible, sino .xlsx
+    if XLWT_AVAILABLE:
+        out_path = os.path.splitext(dbf_path)[0] + '.xls'
+        df.to_excel(out_path, index=False, engine='xlwt')
+        return out_path
+    elif OPENPYXL_AVAILABLE:
+        out_path = os.path.splitext(dbf_path)[0] + '.xlsx'
+        df.to_excel(out_path, index=False, engine='openpyxl')
+        return out_path
+    else:
+        # Intentar dejar que pandas escoja el engine (fallará si no hay ninguno)
+        out_path = os.path.splitext(dbf_path)[0] + '.xlsx'
+        df.to_excel(out_path, index=False)
+        return out_path
 
 
 def handle_files(paths, status_var):
@@ -71,8 +65,8 @@ def handle_files(paths, status_var):
         file = file.strip('{}')
         if file.lower().endswith('.dbf') and os.path.isfile(file):
             try:
-                xls = convert_dbf_to_xls(file)
-                status_var.set(f'Convertido: {os.path.basename(xls)}')
+                out = convert_dbf_to_xls(file)
+                status_var.set(f'Convertido: {os.path.basename(out)}')
             except Exception as e:
                 status_var.set(f'Error: {e}')
                 print(f'Error convirtiendo {file}:', e)
@@ -81,9 +75,7 @@ def handle_files(paths, status_var):
             status_var.set('Solo archivos .dbf existentes')
 
 
-print('Iniciando script dbf_to_xls.py...')
-
-try:
+def create_gui():
     print('Inicializando ventana...')
     if DND_AVAILABLE:
         root = TkinterDnD.Tk()
@@ -91,7 +83,7 @@ try:
         root = tk.Tk()
 
     root.title('Arrastra archivos DBF aquí')
-    root.geometry('480x240')
+    root.geometry('580x360')
 
     label = tk.Label(root, text='Arrastra aquí tus archivos .dbf o usa "Agregar archivos"', font=('Arial', 12))
     label.pack(pady=12)
@@ -101,7 +93,7 @@ try:
     status_label.pack(pady=6)
 
     # Listbox para mostrar ficheros (opcional)
-    listbox = tk.Listbox(root, height=8)
+    listbox = tk.Listbox(root, height=10)
     listbox.pack(fill=tk.BOTH, expand=True, padx=8, pady=6)
 
     def drop(event):
@@ -139,11 +131,16 @@ try:
     print('Mostrando ventana...')
     root.mainloop()
     print('Ventana cerrada.')
-except Exception as e:
-    print('Error al iniciar la ventana:', e)
-    traceback.print_exc()
+
+
+if __name__ == '__main__':
+    print('Iniciando script dbf_to_xls.py...')
     try:
-        import tkinter.messagebox as messagebox
-        messagebox.showerror('Error', f'Error al iniciar la ventana:\n{e}')
-    except Exception:
-        pass
+        create_gui()
+    except Exception as e:
+        print('Error al iniciar la ventana:', e)
+        traceback.print_exc()
+        try:
+            messagebox.showerror('Error', f'Error al iniciar la ventana:\n{e}')
+        except Exception:
+            pass
