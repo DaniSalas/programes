@@ -1,4 +1,4 @@
-# Comprobación de xlwt
+# Control de error de libreria
 try:
     import xlwt
 except ImportError:
